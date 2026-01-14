@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Marriage-Based Immigration Status Intake</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header>
+  <h1>Marriage-Based Immigration Status Intake</h1>
+  <p>Information Collection Only • Attorney Review Required</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>Important Notice</h2>
+    <p>
+      This tool collects general information only.  
+      It does <strong>not</strong> provide legal advice, assess eligibility,
+      or predict outcomes.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Status Intake Assistant</h2>
+    <div class="chat" id="chat"></div>
+    <div class="controls" id="controls"></div>
+  </div>
+
+  <div class="card hidden" id="staffView">
+    <h2>Internal Intake Summary</h2>
+    <small>For staff / attorney review only</small>
+    <pre id="summary"></pre>
+    <button onclick="exportJSON()">Export JSON</button>
+    <button onclick="exportCSV()">Export CSV</button>
+  </div>
+
+</main>
+
+<script>
+/* ============================
+   STATE
+   ============================ */
+const chat = document.getElementById("chat");
+const controls = document.getElementById("controls");
+const summary = document.getElementById("summary");
+const staffView = document.getElementById("staffView");
+
+let intake = {
+  caseType: "Marriage-Based Status Review",
+  petitionerStatus: null,
+  marriageLocation: null,
+  beneficiaryLocation: null,
+  priorFilings: null,
+  criminalIssues: null,
+  documentsAvailable: [],
+  routingTier: null
+};
+
+/* ============================
+   UI HELPERS
+   ============================ */
+function bot(text) {
+  chat.innerHTML += `<div class="msg bot">${text}</div>`;
+  chat.scrollTop = chat.scrollHeight;
+}
+function user(text) {
+  chat.innerHTML += `<div class="msg user">${text}</div>`;
+}
+function clearControls() {
+  controls.innerHTML = "";
+}
+function button(label, action) {
+  const b = document.createElement("button");
+  b.textContent = label;
+  b.onclick = action;
+  controls.appendChild(b);
+}
+
+/* ============================
+   FLOW
+   ============================ */
+function start() {
+  chat.innerHTML = "";
+  clearControls();
+
+  bot("Hello. I’ll ask a few general questions to help route your inquiry.");
+  bot("What is the immigration status of the petitioner?");
+  button("U.S. Citizen", () => setPetitioner("USC"));
+  button("Permanent Resident", () => setPetitioner("LPR"));
+}
+
+function setPetitioner(v) {
+  user(v);
+  intake.petitionerStatus = v;
+  clearControls();
+  bot("Where did the marriage take place?");
+  button("Inside the U.S.", () => setMarriage("US"));
+  button("Outside the U.S.", () => setMarriage("Abroad"));
+}
+
+function setMarriage(v) {
+  user(v);
+  intake.marriageLocation = v;
+  clearControls();
+  bot("Where is the beneficiary currently located?");
+  button("Inside the U.S.", () => setBeneficiary("US"));
+  button("Outside the U.S.", () => setBeneficiary("Abroad"));
+}
+
+function setBeneficiary(v) {
+  user(v);
+  intake.beneficiaryLocation = v;
+  clearControls();
+  bot("Have any immigration petitions been filed before?");
+  button("Yes", () => setPrior(true));
+  button("No", () => setPrior(false));
+}
+
+function setPrior(v) {
+  user(v ? "Yes" : "No");
+  intake.priorFilings = v;
+  clearControls();
+  bot("Are there any known criminal or removal issues?");
+  button("Yes", () => setCriminal(true));
+  button("No", () => setCriminal(false));
+}
+
+function setCriminal(v) {
+  user(v ? "Yes" : "No");
+  intake.criminalIssues = v;
+  clearControls();
+  bot("Which documents are currently available?");
+  button("Marriage Certificate", () => addDoc("Marriage Certificate"));
+  button("Passport", () => addDoc("Passport"));
+  button("I-94 / Entry Record", () => addDoc("I-94"));
+  button("Continue", finalize);
+}
+
+function addDoc(doc) {
+  user(doc);
+  intake.documentsAvailable.push(doc);
+}
+
+/* ============================
+   ROUTING LOGIC (NON-LEGAL)
+   ============================ */
+function assignTier() {
+  let score = 0;
+  if (intake.petitionerStatus === "USC") score += 2;
+  if (intake.beneficiaryLocation === "US") score += 2;
+  if (intake.priorFilings) score += 2;
+  if (intake.criminalIssues) score += 3;
+  return score >= 6 ? "High Review" : score >= 3 ? "Standard Review" : "Low Complexity";
+}
+
+/* ============================
+   FINALIZE
+   ============================ */
+function finalize() {
+  intake.routingTier = assignTier();
+
+  bot("Thank you. Your information has been recorded.");
+  bot("A staff member can now review and determine next steps.");
+
+  const webhookPayload = {
+    event: "marriage.status.intake.completed",
+    timestamp: new Date().toISOString(),
+    intake
+  };
+
+  console.log("ZAPIER READY PAYLOAD:", webhookPayload);
+
+  summary.textContent = JSON.stringify(webhookPayload, null, 2);
+  staffView.classList.remove("hidden");
+}
+
+/* ============================
+   EXPORTS
+   ============================ */
+function exportJSON() {
+  download("marriage-status-intake.json", JSON.stringify(intake, null, 2));
+}
+function exportCSV() {
+  const csv = Object.entries(intake)
+    .map(([k,v]) => `${k},"${Array.isArray(v)?v.join('|'):v}"`)
+    .join("\n");
+  download("marriage-status-intake.csv", csv);
+}
+function download(name, content) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([content]));
+  a.download = name;
+  a.click();
+}
+
+/* ============================
+   INIT
+   ============================ */
+start();
+</script>
+
+</body>
+</html>
+

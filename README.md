@@ -13,6 +13,6 @@ Take-Aways:
 
 NOTES: 
 
-Initially I was unaware that this change of environment could creat such opportunity. Upon initial discovery I felt losing VScode
+Initially I was unaware that this change of environment could create  such opportunity. Upon initial discovery I felt losing VScode
 meant my workflow was ruined and could no longer fulfill future projects for practice & experimentation. Moving forward with
 Vim as the primary IDE and CLI to continue on the course I had been on. 

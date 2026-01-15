@@ -41,9 +41,9 @@
 </main>
 
 <script>
-/* ============================
-   STATE
-   ============================ */
+
+
+
 const chat = document.getElementById("chat");
 const controls = document.getElementById("controls");
 const summary = document.getElementById("summary");
@@ -60,9 +60,7 @@ let intake = {
   routingTier: null
 };
 
-/* ============================
-   UI HELPERS
-   ============================ */
+
 function bot(text) {
   chat.innerHTML += `<div class="msg bot">${text}</div>`;
   chat.scrollTop = chat.scrollHeight;
@@ -80,9 +78,7 @@ function button(label, action) {
   controls.appendChild(b);
 }
 
-/* ============================
-   FLOW
-   ============================ */
+
 function start() {
   chat.innerHTML = "";
   clearControls();
@@ -145,9 +141,7 @@ function addDoc(doc) {
   intake.documentsAvailable.push(doc);
 }
 
-/* ============================
-   ROUTING LOGIC (NON-LEGAL)
-   ============================ */
+
 function assignTier() {
   let score = 0;
   if (intake.petitionerStatus === "USC") score += 2;
@@ -157,9 +151,7 @@ function assignTier() {
   return score >= 6 ? "High Review" : score >= 3 ? "Standard Review" : "Low Complexity";
 }
 
-/* ============================
-   FINALIZE
-   ============================ */
+
 function finalize() {
   intake.routingTier = assignTier();
 
@@ -178,9 +170,7 @@ function finalize() {
   staffView.classList.remove("hidden");
 }
 
-/* ============================
-   EXPORTS
-   ============================ */
+
 function exportJSON() {
   download("marriage-status-intake.json", JSON.stringify(intake, null, 2));
 }
@@ -197,12 +187,12 @@ function download(name, content) {
   a.click();
 }
 
-/* ============================
-   INIT
-   ============================ */
+
 start();
 </script>
 
 </body>
 </html>
+
+
 

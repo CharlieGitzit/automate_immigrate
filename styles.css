@@ -19,7 +19,7 @@
   --color-disclaimer-text: #d6e3f3;
 
   --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.08);
-  --shadow-strong: 0 14px 40px rgba(0, 0, 0, 0.12);
+  --shadow-strong: 0 18px 48px rgba(0, 0, 0, 0.16);
 
   --radius-lg: 18px;
   --radius-md: 12px;
@@ -35,39 +35,56 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Ubuntu, sans-serif;
   color: var(--color-text-main);
-  background: linear-gradient(
-    180deg,
-    #eef3f8 0%,
-    #e7edf3 100%
-  );
+  background: radial-gradient(
+      circle at top,
+      rgba(79, 91, 213, 0.06),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #eef3f8 0%, #e7edf3 100%);
+  box-shadow: inset 0 0 0 6px rgba(11, 42, 69, 0.04);
 }
 
 header {
+  position: relative;
   background: linear-gradient(
     135deg,
-    var(--color-primary),
-    #081f33
+    #0b2a45 0%,
+    #081f33 70%
   );
   color: #ffffff;
-  padding: 32px 20px;
-  box-shadow: var(--shadow-soft);
+  padding: 40px 20px 36px;
+  box-shadow: var(--shadow-strong);
+}
+
+header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-secondary),
+    var(--color-accent)
+  );
 }
 
 header h1 {
   margin: 0;
-  font-size: 2rem;
-  letter-spacing: 0.6px;
+  font-size: 2.1rem;
+  letter-spacing: 0.8px;
 }
 
 header p {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 1rem;
   opacity: 0.9;
 }
 
 main {
   max-width: 1100px;
-  margin: 0 auto;
+  margin: -28px auto 0;
   padding: 32px 20px 48px;
   display: grid;
   gap: 28px;
@@ -201,7 +218,7 @@ footer {
 
 @media (max-width: 640px) {
   header h1 {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
   }
 
   .msg {
